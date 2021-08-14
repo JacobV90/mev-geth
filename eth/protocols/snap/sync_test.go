@@ -796,6 +796,12 @@ func TestMultiSyncManyUseless(t *testing.T) {
 
 // TestMultiSyncManyUseless contains one good peer, and many which doesn't return anything valuable at all
 func TestMultiSyncManyUselessWithLowTimeout(t *testing.T) {
+	// We're setting the timeout to very low, to increase the chance of the timeout
+	// being triggered. This was previously a cause of panic, when a response
+	// arrived simultaneously as a timeout was triggered.
+	defer func(old time.Duration) { requestTimeout = old }(requestTimeout)
+	requestTimeout = time.Millisecond
+
 	var (
 		once   sync.Once
 		cancel = make(chan struct{})
@@ -832,11 +838,6 @@ func TestMultiSyncManyUselessWithLowTimeout(t *testing.T) {
 		mkSource("noStorage", true, false, true),
 		mkSource("noTrie", true, true, false),
 	)
-	// We're setting the timeout to very low, to increase the chance of the timeout
-	// being triggered. This was previously a cause of panic, when a response
-	// arrived simultaneously as a timeout was triggered.
-	syncer.rates.OverrideTTLLimit = time.Millisecond
-
 	done := checkStall(t, term)
 	if err := syncer.Sync(sourceAccountTrie.Hash(), cancel); err != nil {
 		t.Fatalf("sync failed: %v", err)
@@ -847,6 +848,10 @@ func TestMultiSyncManyUselessWithLowTimeout(t *testing.T) {
 
 // TestMultiSyncManyUnresponsive contains one good peer, and many which doesn't respond at all
 func TestMultiSyncManyUnresponsive(t *testing.T) {
+	// We're setting the timeout to very low, to make the test run a bit faster
+	defer func(old time.Duration) { requestTimeout = old }(requestTimeout)
+	requestTimeout = time.Millisecond
+
 	var (
 		once   sync.Once
 		cancel = make(chan struct{})
@@ -883,9 +888,6 @@ func TestMultiSyncManyUnresponsive(t *testing.T) {
 		mkSource("noStorage", true, false, true),
 		mkSource("noTrie", true, true, false),
 	)
-	// We're setting the timeout to very low, to make the test run a bit faster
-	syncer.rates.OverrideTTLLimit = time.Millisecond
-
 	done := checkStall(t, term)
 	if err := syncer.Sync(sourceAccountTrie.Hash(), cancel); err != nil {
 		t.Fatalf("sync failed: %v", err)

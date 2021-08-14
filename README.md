@@ -1,29 +1,28 @@
-# MEV-geth
+## Bor
 
-This is a fork of go-ethereum, [the original README is here](README.original.md).
+Official Golang implementation of the Matic protocol (fork of Go Ethereum - https://github.com/ethereum/go-ethereum)
 
-Flashbots is a research and development organization formed to mitigate the negative externalities and existential risks posed by miner-extractable value (MEV) to smart-contract blockchains. We propose a permissionless, transparent, and fair ecosystem for MEV extraction that reinforce the Ethereum ideals.
+## Building the source
 
-## Quick start
+Building `bor` requires both a Go (version 1.14 or later) and a C compiler. You can install
+them using your favourite package manager. Once the dependencies are installed, run
 
+```shell
+make bor
 ```
-git clone https://github.com/flashbots/mev-geth
-cd mev-geth
-make geth
+
+or, to build the full suite of utilities:
+
+```shell
+make bor-all
 ```
 
-See [here](https://geth.ethereum.org/docs/install-and-build/installing-geth#build-go-ethereum-from-source-code) for further info on building MEV-geth from source.
+## License
 
-## Documentation
+The go-ethereum library (i.e. all code outside of the `cmd` directory) is licensed under the
+[GNU Lesser General Public License v3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html),
+also included in our repository in the `COPYING.LESSER` file.
 
-See [here](https://docs.flashbots.net) for Flashbots documentation.
-
-| Version | Spec                                                                                        |
-| ------- | ------------------------------------------------------------------------------------------- |
-| v0.3    | [MEV-Geth Spec v0.3](https://docs.flashbots.net/flashbots-auction/miners/mev-geth-spec/v03) |
-| v0.2    | [MEV-Geth Spec v0.2](https://docs.flashbots.net/flashbots-auction/miners/mev-geth-spec/v02) |
-| v0.1    | [MEV-Geth Spec v0.1](https://docs.flashbots.net/flashbots-auction/miners/mev-geth-spec/v01) |
-
-### Feature requests and bug reports
-
-If you are a user of MEV-Geth and have suggestions on how to make integration with your current setup easier, or would like to submit a bug report, we encourage you to open an issue in this repository with the `enhancement` or `bug` labels respectively. If you need help getting started, please ask in the dedicated [#⛏️miners](https://discord.gg/rcgADN9qFX) channel in our Discord.
+The go-ethereum binaries (i.e. all code inside of the `cmd` directory) is licensed under the
+[GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html), also
+included in our repository in the `COPYING` file.

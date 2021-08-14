@@ -444,7 +444,6 @@ func TestAncientStorage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create database with ancient backend")
 	}
-	defer db.Close()
 	// Create a test block
 	block := types.NewBlockWithHeader(&types.Header{
 		Number:      big.NewInt(0),
@@ -468,7 +467,7 @@ func TestAncientStorage(t *testing.T) {
 		t.Fatalf("non existent td returned")
 	}
 	// Write and verify the header in the database
-	WriteAncientBlock(db, block, nil, big.NewInt(100))
+	WriteAncientBlock(db, block, nil, big.NewInt(100), nil)
 	if blob := ReadHeaderRLP(db, hash, number); len(blob) == 0 {
 		t.Fatalf("no header returned")
 	}

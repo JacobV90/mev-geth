@@ -505,25 +505,6 @@ func (pool *TxPool) Content() (map[common.Address]types.Transactions, map[common
 	return pending, queued
 }
 
-// ContentFrom retrieves the data content of the transaction pool, returning the
-// pending as well as queued transactions of this address, grouped by nonce.
-func (pool *TxPool) ContentFrom(addr common.Address) (types.Transactions, types.Transactions) {
-	pool.mu.RLock()
-	defer pool.mu.RUnlock()
-
-	// Retrieve the pending transactions and sort by nonce
-	var pending types.Transactions
-	for _, tx := range pool.pending {
-		account, _ := types.Sender(pool.signer, tx)
-		if account != addr {
-			continue
-		}
-		pending = append(pending, tx)
-	}
-	// There are no queued transactions in a light pool, just return an empty map
-	return pending, types.Transactions{}
-}
-
 // RemoveTransactions removes all given transactions from the pool.
 func (pool *TxPool) RemoveTransactions(txs types.Transactions) {
 	pool.mu.Lock()
@@ -549,15 +530,4 @@ func (pool *TxPool) RemoveTx(hash common.Hash) {
 	delete(pool.pending, hash)
 	pool.chainDb.Delete(hash[:])
 	pool.relay.Discard([]common.Hash{hash})
-}
-
-// MevBundles returns a list of bundles valid for the given blockNumber/blockTimestamp
-// also prunes bundles that are outdated
-func (pool *TxPool) MevBundles(blockNumber *big.Int, blockTimestamp uint64) ([]types.Transactions, error) {
-	return nil, nil
-}
-
-// AddMevBundle adds a mev bundle to the pool
-func (pool *TxPool) AddMevBundle(txs types.Transactions, blockNumber *big.Int, minTimestamp uint64, maxTimestamp uint64, revertingTxHashes []common.Hash) error {
-	return nil
 }

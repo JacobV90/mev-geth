@@ -30,6 +30,7 @@ type dummyContractRef struct {
 	calledForEach bool
 }
 
+func (dummyContractRef) ReturnGas(*big.Int)          {}
 func (dummyContractRef) Address() common.Address     { return common.Address{} }
 func (dummyContractRef) Value() *big.Int             { return new(big.Int) }
 func (dummyContractRef) SetCode(common.Hash, []byte) {}
@@ -59,8 +60,8 @@ func TestStoreCapture(t *testing.T) {
 			Contract: contract,
 		}
 	)
-	scope.Stack.push(uint256.NewInt(1))
-	scope.Stack.push(new(uint256.Int))
+	scope.Stack.push(uint256.NewInt().SetUint64(1))
+	scope.Stack.push(uint256.NewInt())
 	var index common.Hash
 	logger.CaptureState(env, 0, SSTORE, 0, 0, scope, nil, 0, nil)
 	if len(logger.storage[contract.Address()]) == 0 {

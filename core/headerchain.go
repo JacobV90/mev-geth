@@ -165,7 +165,6 @@ func (hc *HeaderChain) writeHeaders(headers []*types.Header) (result *headerWrit
 	)
 
 	batch := hc.chainDb.NewBatch()
-	parentKnown := true // Set to true to force hc.HasHeader check the first iteration
 	for i, header := range headers {
 		var hash common.Hash
 		// The headers have already been validated at this point, so we already
@@ -179,10 +178,8 @@ func (hc *HeaderChain) writeHeaders(headers []*types.Header) (result *headerWrit
 		number := header.Number.Uint64()
 		newTD.Add(newTD, header.Difficulty)
 
-		// If the parent was not present, store it
 		// If the header is already known, skip it, otherwise store
-		alreadyKnown := parentKnown && hc.HasHeader(hash, number)
-		if !alreadyKnown {
+		if !hc.HasHeader(hash, number) {
 			// Irrelevant of the canonical status, write the TD and header to the database.
 			rawdb.WriteTd(batch, hash, number, newTD)
 			hc.tdCache.Add(hash, new(big.Int).Set(newTD))
@@ -195,7 +192,6 @@ func (hc *HeaderChain) writeHeaders(headers []*types.Header) (result *headerWrit
 				firstInserted = i
 			}
 		}
-		parentKnown = alreadyKnown
 		lastHeader, lastHash, lastNumber = header, hash, number
 	}
 
@@ -315,11 +311,11 @@ func (hc *HeaderChain) ValidateHeaderChain(chain []*types.Header, checkFreq int)
 		}
 		// If the header is a banned one, straight out abort
 		if BadHashes[chain[i].ParentHash] {
-			return i - 1, ErrBannedHash
+			return i - 1, ErrBlacklistedHash
 		}
 		// If it's the last header in the cunk, we need to check it too
 		if i == len(chain)-1 && BadHashes[chain[i].Hash()] {
-			return i, ErrBannedHash
+			return i, ErrBlacklistedHash
 		}
 	}
 
@@ -574,7 +570,7 @@ func (hc *HeaderChain) SetHead(head uint64, updateFn UpdateHeadBlocksCallback, d
 		if parent == nil {
 			parent = hc.genesisHeader
 		}
-		parentHash = parent.Hash()
+		parentHash = hdr.ParentHash
 
 		// Notably, since geth has the possibility for setting the head to a low
 		// height which is even lower than ancient head.
